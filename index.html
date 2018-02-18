@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Monet AR</title>
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="css/style.css" type="text/css" />
+    </head>
+    <body>
+        <canvas id="debugCanvas"></canvas>
+        <div id="container"></div>
+        <script type="text/javascript" src="js/awe-v8.js"></script>
+        <script type="text/javascript" src="js/awe-loader.js"></script>
+        <script type="text/javascript">
+        window.addEventListener('load', function() 
+        {
+            window.awe.init
+            ({
+                device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+                settings: 
+                {
+          	        container_id: 'container',
+                    default_camera_position: { x:0, y:0, z:0 },
+                    default_lights:
+                    [
+                        {
+                            id: 'ambient_light',
+                            type: 'ambient',
+                            color: 0x666666
+                        },
+                        {
+                            id: 'hemi',
+                            type: 'hemisphere',
+                            color: 0xCCCCCC,
+                        },
+                    ],
+                },
+                ready: function() {
+                    var d = '?_='+Date.now();
+                    awe.util.require
+                    ([
+                        {
+                            capabilities: ['gum','webgl'],
+                            files: 
+                            [ 
+                                // base libraries
+                                [ 'js/awe-standard-dependencies.js', 'js/awe-standard.js'+d],
+                                // plugin dependencies
+                                ['js/awe-jsartoolkit-dependencies.js','js/plugins/StereoEffect.js', 'js/plugins/VREffect.js'],
+                                // plugins
+                                ['js/awe.marker_ar.js'+d,'js/plugins/awe.rendering_effects.js'+d]
+                            ],
+                            success: function() 
+                            { 
+    							awe.setup_scene();
+    	   						awe.settings.update({data:{value: 'ar'}, where:{id: 'view_mode'}})
+    			                awe.pois.add({ id:'jsartoolkit_marker_64', position: { x:0, y:0, z:0 }, visible: false});
+                                awe.projections.add
+                                ({ 
+                                    id: 'marker_projection',
+                                    geometry: {path: 'robotv6.obj'},
+                                    position: {x: 0, y: 30, z: 0},
+                                    rotation: {x: 60, y:180, z: 180 }, 
+                                    material: {path:'robotv6.mtl'}
+                                }, {poi_id: 'jsartoolkit_marker_64'});
+    			                 // animate the fixed POI
+                                //awe.projections.update
+                                // ({
+                                //     data:
+                                //     {
+                                //         animation: { duration: 5, persist: 0, repeat: Infinity },
+                                //         rotation: { y: 360 },
+                                //     },
+                                //     where:{ id:"fixed_projection" },
+                                // });
+    			                awe.plugins.view('render_effects').enable();
+    			                awe.plugins.view('jsartoolkit').enable();
+    			            },
+                        },
+                        {
+                            capabilities: [],
+                            success: function() 
+                            { 
+    		                    document.body.innerHTML = '<p>Compatibility: Chrome/Firefox on a PC/Android</p>';
+                            },
+                        },
+                    ]);
+                }
+            });
+        });
+        </script>
+    </body>
+</html>
